@@ -3,272 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشاتل الناصرية | الفخامة الزراعية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
-    <!-- إضافة مكتبة Supabase -->
+    <title>مشاتل الناصرية | الفخامة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --bg-dark: #040d08;
-            --bg-panel: #081a10;
-            --gold-solid: #d4af37;
-            --gold-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-            --text-light: #f5f5f5;
-            --text-muted: #a0aab2;
-            --glass-border: rgba(212, 175, 55, 0.15);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            overflow-x: hidden;
-        }
-
-        .main-logo {
-            max-width: 180px;
-            max-height: 100px;
-            object-fit: contain;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
-            transition: transform 0.3s ease;
-        }
-
-        .hero-section {
-            position: relative;
-            height: 85vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            background-image: url('https://images.unsplash.com/photo-1466692476877-361ad3532bf6?auto=format&fit=crop&q=80&w=1920');
-            background-attachment: fixed;
-            background-position: center;
-            background-size: cover;
-            overflow: hidden;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(4, 13, 8, 0.4) 0%, var(--bg-dark) 100%);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            padding: 0 20px;
-            animation: fadeUp 1.5s ease-out;
-        }
-
-        .brand-badge {
-            display: inline-block;
-            color: var(--bg-dark);
-            background: var(--gold-gradient);
-            padding: 5px 20px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-weight: 800;
-            margin-bottom: 15px;
-        }
-
-        .main-title {
-            font-size: clamp(2.5rem, 6vw, 5rem);
-            font-weight: 900;
-            margin: 0;
-            color: #fff;
-        }
-
-        .main-title span {
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .trust-bar {
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            padding: 40px 20px;
-            background: var(--bg-panel);
-            border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 10;
-        }
-
-        .trust-item {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .trust-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--gold-gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .trust-icon svg { width: 24px; height: 24px; fill: var(--bg-dark); }
-
-        .video-container { max-width: 1500px; margin: 60px auto; padding: 0 20px; }
-        .video-wrapper { position: relative; border: 1px solid var(--glass-border); overflow: hidden; }
-        .video-wrapper video { width: 100%; display: block; aspect-ratio: 21/9; object-fit: cover; }
+        :root { --bg: #040d08; --gold: #d4af37; --panel: #081a10; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Cairo', sans-serif; }
         
-        .gallery-container { max-width: 1500px; margin: 80px auto; padding: 0 20px; }
-        .section-header { margin-bottom: 50px; text-align: right; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px; }
-        .category-title { font-size: 2.2rem; font-weight: 800; color: #fff; position: relative; display: inline-block; }
-        .category-title::after { content: ""; position: absolute; bottom: -21px; right: 0; width: 50%; height: 3px; background: var(--gold-gradient); }
+        .hero { height: 50vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(rgba(0,0,0,0.5), var(--bg)), url('https://images.unsplash.com/photo-1466692476877-361ad3532bf6?auto=format&fit=crop&q=80&w=1000'); background-size: cover; text-align: center; }
+        .hero h1 { font-size: 3rem; margin: 0; }
+        .hero h1 span { color: var(--gold); }
 
-        .slider-wrapper { overflow: hidden; padding: 20px 0; }
-        .track { display: flex; gap: 35px; width: max-content; animation: scroll-luxury 35s linear infinite; }
-        @keyframes scroll-luxury { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .container { max-width: 1200px; margin: 40px auto; padding: 20px; }
+        .section-title { border-right: 4px solid var(--gold); padding-right: 15px; margin: 40px 0 20px; }
 
-        .luxury-card {
-            width: 340px; height: 480px; background: var(--bg-panel);
-            border: 1px solid var(--glass-border); transition: 0.5s;
-            display: flex; flex-direction: column;
-        }
-        .luxury-card:hover { border-color: var(--gold-solid); transform: translateY(-10px); }
-        .card-image-box { height: 75%; overflow: hidden; }
-        .card-image-box img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: 1.2s; }
-        .card-info { padding: 25px; border-top: 1px solid var(--glass-border); }
+        /* السلايدر المتحرك */
+        .slider { overflow: hidden; padding: 20px 0; }
+        .track { display: flex; gap: 20px; width: max-content; animation: scroll 30s linear infinite; }
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-        .luxury-footer { background-color: #020704; padding: 60px 20px; border-top: 1px solid var(--glass-border); text-align: center; }
-        
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        /* كرت النبتة */
+        .card { width: 280px; background: var(--panel); border: 1px solid rgba(212,175,55,0.1); border-radius: 10px; overflow: hidden; }
+        .card img { width: 100%; height: 300px; object-fit: cover; }
+        .card-info { padding: 15px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <header class="hero-section">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <div id="logo-container"></div>
-            <span class="brand-badge">NASRIYA NURSERIES</span>
-            <h1 class="main-title">مشاتل <span>الناصرية</span></h1>
-            <p class="hero-desc">حيث تلتقي عراقة الطبيعة بأعلى معايير الجودة والفخامة.</p>
-        </div>
+    <header class="hero">
+        <div><h1>مشاتل <span>الناصرية</span></h1><p>عراقة وجودة</p></div>
     </header>
 
-    <div class="trust-bar">
-        <!-- أيقونة الجودة -->
-        <div class="trust-item">
-            <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
-            <span>جودة عالمية معتمدة</span>
-        </div>
-        <!-- أيقونة النقل -->
-        <div class="trust-item">
-            <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
-            <span>نقل لوجستي متخصص</span>
-        </div>
-    </div>
-
-    <div id="video-promo-area"></div>
-
-    <main class="gallery-container" id="luxury-gallery"></main>
-
-    <footer class="luxury-footer">
-        <div id="footer-logo-container"></div>
-        <div class="footer-brand" style="font-size: 1.5rem; color: white; margin-top: 10px;">مشاتل <span>الناصرية</span></div>
-        <p style="color: var(--text-muted);">&copy; <span id="current-year"></span> جميع الحقوق محفوظة.</p>
-    </footer>
+    <main class="container" id="gallery"></main>
 
     <script>
-        // --- إعدادات Supabase ---
         const SUPABASE_URL = 'https://cuaoopauabnmpmoddvby.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1YW9vcGF1YWJubXBtb2RkdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjgyNDUsImV4cCI6MjA5MzIwNDI0NX0._vyBPMk3oaJqMJaBRY4DaKj2ZjSodKPxZ77kFiZUH9o'; 
-        
-        // ملاحظة: قمت بتغيير اسم المتغير لـ _supabase لتجنب التضارب مع اسم المكتبة
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1YW9vcGF1YWJubXBtb2RkdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjgyNDUsImV4cCI6MjA5MzIwNDI0NX0._vyBPMk3oaJqMJaBRY4DaKj2ZjSodKPxZ77kFiZUH9o';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const categoriesMap = {
-            fruit: "الأشجار المثمرة المختارة",
-            ornamental: "مجموعة أشجار الزينة",
-            indoor: "نباتات الظل",
-            medical: "الأعشاب الطبية والعطرية",
-            shrubs: "الشجيرات العطرية والمزهرة",
-            seasonal: "الزهور الموسمية",
-            climbing: "نباتات متسلقة"
-        };
+        const cats = { fruit: "الأشجار المثمرة", ornamental: "أشجار الزينة", indoor: "نباتات الظل" };
 
-        async function renderSite() {
-            document.getElementById('current-year').textContent = new Date().getFullYear();
-            
-            // 1. جلب البيانات من السحاب (Supabase)
-            const { data: plants, error: plantsError } = await _supabase.from('plants_data').select('*');
-            const { data: videoRes } = await _supabase.from('site_settings').select('*').eq('key', 'promo_video').single();
+        async function loadSite() {
+            const { data: plants } = await _supabase.from('plants_data').select('*').order('id', {ascending: false});
+            const gallery = document.getElementById('gallery');
+            if(!plants) return;
 
-            if (plantsError) return console.error("Error fetching data:", plantsError);
+            // 1. قسم النخبة (سلايدر)
+            const moving = plants.filter(p => p.is_moving);
+            if(moving.length > 0) {
+                gallery.innerHTML += `<h2 class="section-title">نخبة الناصرية</h2>
+                <div class="slider"><div class="track">${[...moving, ...moving].map(p => `<div class="card"><img src="${p.image_url}"><div class="card-info"><h3>${p.name}</h3></div></div>`).join('')}</div></div>`;
+            }
 
-            // 2. تحديث الفيديو
-            const videoArea = document.getElementById('video-promo-area');
-            if (videoRes && videoRes.value) {
-                videoArea.innerHTML = `
-                    <div class="video-container">
-                        <div class="video-wrapper">
-                            <video autoplay muted loop playsinline>
-                                <source src="${videoRes.value}" type="video/mp4">
-                            </video>
-                        </div>
+            // 2. بقية الأقسام
+            for (let key in cats) {
+                const filtered = plants.filter(p => p.category === key && !p.is_moving);
+                if(filtered.length > 0) {
+                    gallery.innerHTML += `<h2 class="section-title">${cats[key]}</h2>
+                    <div style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center;">
+                        ${filtered.map(p => `<div class="card"><img src="${p.image_url}"><div class="card-info"><h3>${p.name}</h3></div></div>`).join('')}
                     </div>`;
-            }
-
-            // 3. تحديث المعرض والرفوف
-            const container = document.getElementById('luxury-gallery');
-            container.innerHTML = "";
-
-            // الرف المتحرك (السلايدر)
-            const movingItems = plants.filter(item => item.is_moving);
-            if (movingItems.length > 0) {
-                container.innerHTML += `
-                    <section style="margin-bottom: 90px;">
-                        <div class="section-header"><h2 class="category-title">نخبة الناصرية</h2></div>
-                        <div class="slider-wrapper"><div class="track">
-                            ${[...movingItems, ...movingItems].map(p => createCardHTML(p)).join('')}
-                        </div></div>
-                    </section>`;
-            }
-
-            // التصنيفات الثابتة
-            Object.keys(categoriesMap).forEach(cat => {
-                const filtered = plants.filter(p => p.category === cat && !p.is_moving);
-                if (filtered.length > 0) {
-                    container.innerHTML += `
-                        <section style="margin-bottom: 90px;">
-                            <div class="section-header"><h2 class="category-title">${categoriesMap[cat]}</h2></div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 35px; justify-content: center;">
-                                ${filtered.map(p => createCardHTML(p)).join('')}
-                            </div>
-                        </section>`;
                 }
-            });
+            }
         }
-
-        function createCardHTML(p) {
-            return `
-                <div class="luxury-card">
-                    <div class="card-image-box"><img src="${p.image_url}" loading="lazy"></div>
-                    <div class="card-info">
-                        <h3 style="color:white; margin:0 0 5px 0; font-size: 1.2rem;">${p.name}</h3>
-                        <span style="color:var(--gold-solid); font-size:0.8rem; font-weight:bold;">إصدار النخبة</span>
-                    </div>
-                </div>`;
-        }
-
-        window.onload = renderSite;
+        window.onload = loadSite;
     </script>
 </body>
 </html>
