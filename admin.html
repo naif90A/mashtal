@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة مشاتل الناصرية | نسخة 2026</title>
+    <title>إدارة مشاتل الناصرية | النسخة السحابية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- استدعاء مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-dark: #040d08;
@@ -79,9 +81,7 @@
 
         .btn-add:hover { background: #fcf6ba; transform: scale(1.05); }
 
-        /* ستايل خاص بقسم الفيديو */
         .video-card { border-right: 5px solid var(--video-accent); }
-        .video-preview { width: 100%; max-width: 300px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--video-accent); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { text-align: right; color: var(--gold); padding: 12px; border-bottom: 1px solid var(--gold); }
@@ -90,45 +90,59 @@
         .img-preview { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
         .btn-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         .type-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; background: rgba(255,255,255,0.1); }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
 
+<div id="loader" class="loading-overlay">
+    <h2 style="color: var(--gold);">جاري معالجة البيانات...</h2>
+    <p>يرجى الانتظار، يتم الرفع للسحاب الآن</p>
+</div>
+
 <div class="sidebar">
     <h2>مشاتل الناصرية</h2>
-    <p>لوحة التحكم الشاملة</p>
+    <p>لوحة التحكم السحابية ☁️</p>
     <hr style="opacity: 0.1;">
-    <p style="font-size: 0.8rem;">يمكنك الآن إدارة السلايدر، الأرفف الثابتة، والفيديو الإعلاني من مكان واحد.</p>
+    <p style="font-size: 0.8rem;">البيانات المرفوعة هنا ستظهر لجميع زوار الموقع مباشرة.</p>
 </div>
 
 <div class="main-content">
     
     <div class="admin-card video-card">
-        <h3 style="color: var(--video-accent);">قسم الفيديو الإعلاني (عروضنا مستمرة)</h3>
-        <p>ارفع فيديو قصير من الاستوديو ليظهر كخلفية إعلانية في الموقع.</p>
+        <h3 style="color: var(--video-accent);">قسم الفيديو الإعلاني</h3>
         <div class="form-row">
             <div class="input-group">
-                <label>عنوان الفيديو (اختياري)</label>
+                <label>عنوان الفيديو</label>
                 <input type="text" id="vTitle" placeholder="مثلاً: عروض الموسم">
             </div>
             <div class="input-group">
-                <label>اختيار فيديو من الاستوديو</label>
+                <label>ملف الفيديو</label>
                 <input type="file" id="vFile" accept="video/*">
             </div>
-            <button class="btn-add" style="background: var(--video-accent); color: white;" onclick="uploadVideo()">تحديث الفيديو الإعلاني</button>
+            <button class="btn-add" style="background: var(--video-accent); color: white;" onclick="uploadVideo()">تحديث الفيديو</button>
         </div>
-        <div id="videoStatus" style="margin-top: 10px; font-size: 0.9rem;"></div>
     </div>
 
     <div class="admin-card" style="border-right: 5px solid var(--gold);">
-        <h3>1. إدارة الرف المتحرك (سلايدر لانهاية)</h3>
+        <h3>1. إضافة للسلايدر (المتحرك)</h3>
         <div class="form-row">
             <div class="input-group">
                 <label>اسم النبته</label>
                 <input type="text" id="mName" placeholder="نخبة الناصرية">
             </div>
             <div class="input-group">
-                <label>الصورة من الاستوديو</label>
+                <label>الصورة</label>
                 <input type="file" id="mFile" accept="image/*">
             </div>
             <button class="btn-add" onclick="addItem('moving')">إضافة للسلايدر +</button>
@@ -136,41 +150,36 @@
     </div>
 
     <div class="admin-card" style="border-right: 5px solid #2ecc71;">
-        <h3>2. إدارة الأرفف الثابتة (حسب القسم)</h3>
+        <h3>2. إضافة للأرفف (حسب القسم)</h3>
         <div class="form-row">
             <div class="input-group">
                 <label>اسم النبته</label>
-                <input type="text" id="sName" placeholder="مثلاً: بونساي">
+                <input type="text" id="sName" placeholder="بونساي">
             </div>
             <div class="input-group">
-                <label>تحديد الرف</label>
+                <label>القسم</label>
                 <select id="sCat">
                     <option value="fruit">أشجار الفاكهة</option>
                     <option value="ornamental">أشجار الزينة</option>
                     <option value="indoor">نباتات الظل</option>
-                    <option value="medical">الأعشاب الطبية والعطرية</option>
-                    <option value="shrubs">الشجيرات العطرية والمزهرة</option>
-                    <option value="seasonal">الزهور الموسمية</option>
-                    <option value="climbing">نباتات متسلقة</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>الصورة من الاستوديو</label>
+                <label>الصورة</label>
                 <input type="file" id="sFile" accept="image/*">
             </div>
-            <button class="btn-add" style="background: #2ecc71;" onclick="addItem('static')">إضافة للرف الثابت +</button>
+            <button class="btn-add" style="background: #2ecc71;" onclick="addItem('static')">إضافة للرف +</button>
         </div>
     </div>
 
     <div class="admin-card">
-        <h3>قائمة المحتوى المرفوع</h3>
+        <h3>قائمة المحتوى المرفوع على السحاب</h3>
         <table>
             <thead>
                 <tr>
                     <th>المعاينه</th>
                     <th>الاسم</th>
                     <th>النوع</th>
-                    <th>القسم</th>
                     <th>الإجراء</th>
                 </tr>
             </thead>
@@ -180,85 +189,74 @@
 </div>
 
 <script>
-    // وظيفة رفع الفيديو
-    function uploadVideo() {
-        const title = document.getElementById('vTitle').value;
-        const fileInput = document.getElementById('vFile');
-        const status = document.getElementById('videoStatus');
+    // --- إعدادات الربط ---
+    const SUPABASE_URL = 'https://cuaoopauabnmpmoddvby.supabase.co';
+    const SUPABASE_KEY = 'ضع_هنا_Anon_Key_الخاص_بك'; // <--- ضع المفتاح هنا
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        if (!fileInput.files[0]) {
-            alert("يرجى اختيار ملف فيديو");
-            return;
-        }
-
-        status.innerHTML = "جاري المعالجة... يرجى الانتظار";
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const videoData = {
-                title: title || "فيديو إعلاني",
-                src: e.target.result
-            };
-            localStorage.setItem('nasriya_promo_video', JSON.stringify(videoData));
-            status.innerHTML = "<b style='color:#2ecc71;'>✅ تم رفع الفيديو بنجاح! سيظهر في الموقع الآن.</b>";
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-    }
-
-    // وظيفة إضافة الصور (متحرك/ثابت)
-    function addItem(type) {
+    // وظيفة الرفع
+    async function addItem(type) {
         const nameId = type === 'moving' ? 'mName' : 'sName';
         const fileId = type === 'moving' ? 'mFile' : 'sFile';
-        const catId = type === 'static' ? 'sCat' : null;
-
         const name = document.getElementById(nameId).value;
-        const fileInput = document.getElementById(fileId);
-        const category = catId ? document.getElementById(catId).value : 'moving_shelf';
+        const file = document.getElementById(fileId).files[0];
+        const category = type === 'static' ? document.getElementById('sCat').value : 'moving';
 
-        if (!name || !fileInput.files[0]) {
-            alert("أكمل البيانات أولاً");
-            return;
+        if (!name || !file) return alert("يرجى ملء البيانات");
+
+        showLoader(true);
+
+        try {
+            // 1. رفع الصورة إلى Storage
+            const fileName = `${Date.now()}_${file.name}`;
+            const { data: imgData, error: imgErr } = await supabaseClient.storage
+                .from('nasriya_assets') // تأكد من إنشاء Bucket بهذا الاسم في Supabase
+                .upload(fileName, file);
+
+            if (imgErr) throw imgErr;
+
+            // 2. الحصول على الرابط
+            const { data: urlData } = supabaseClient.storage.from('nasriya_assets').getPublicUrl(fileName);
+
+            // 3. حفظ في Database
+            const { error: dbErr } = await supabaseClient
+                .from('plants_data') // تأكد من إنشاء جدول بهذا الاسم
+                .insert([{ name, image_url: urlData.publicUrl, category, is_moving: type === 'moving' }]);
+
+            if (dbErr) throw dbErr;
+
+            alert("تم الحفظ سحابياً!");
+            loadData();
+        } catch (err) {
+            alert("حدث خطأ: " + err.message);
+        } finally {
+            showLoader(false);
         }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const newItem = {
-                id: Date.now(),
-                name: name,
-                image: e.target.result,
-                category: category,
-                isMoving: type === 'moving'
-            };
-
-            const data = JSON.parse(localStorage.getItem('nasriya_master_data')) || [];
-            data.push(newItem);
-            localStorage.setItem('nasriya_master_data', JSON.stringify(data));
-            
-            location.reload();
-        };
-        reader.readAsDataURL(fileInput.files[0]);
     }
 
-    function loadData() {
+    async function loadData() {
+        const { data, error } = await supabaseClient.from('plants_data').select('*');
+        if (error) return;
+
         const table = document.getElementById('dataTable');
-        const data = JSON.parse(localStorage.getItem('nasriya_master_data')) || [];
-        
         table.innerHTML = data.map(item => `
             <tr>
-                <td><img src="${item.image}" class="img-preview"></td>
+                <td><img src="${item.image_url}" class="img-preview"></td>
                 <td>${item.name}</td>
-                <td><span class="type-badge">${item.isMoving ? 'متحرك' : 'ثابت'}</span></td>
-                <td>${item.isMoving ? 'السلايدر العلوي' : item.category}</td>
+                <td><span class="type-badge">${item.is_moving ? 'سلايدر' : item.category}</span></td>
                 <td><button class="btn-delete" onclick="deleteItem(${item.id})">حذف</button></td>
             </tr>
         `).join('');
     }
 
-    function deleteItem(id) {
-        let data = JSON.parse(localStorage.getItem('nasriya_master_data')) || [];
-        data = data.filter(item => item.id !== id);
-        localStorage.setItem('nasriya_master_data', JSON.stringify(data));
+    async function deleteItem(id) {
+        if (!confirm("هل أنت متأكد؟")) return;
+        await supabaseClient.from('plants_data').delete().eq('id', id);
         loadData();
+    }
+
+    function showLoader(show) {
+        document.getElementById('loader').style.display = show ? 'flex' : 'none';
     }
 
     window.onload = loadData;
