@@ -2,32 +2,93 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إدارة مشاتل الناصرية</title>
+    <title>التحكم | مشاتل الناصرية</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #040d08; color: white; padding: 20px; text-align: center; }
-        .box { max-width: 500px; margin: auto; background: #0a160f; padding: 30px; border: 1px solid #d4af37; border-radius: 15px; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; }
-        button { background: #d4af37; color: black; font-weight: bold; cursor: pointer; border: none; }
-        .list-item { display: flex; justify-content: space-between; background: #000; padding: 10px; margin-top: 5px; border-radius: 5px; }
+        :root { --gold: #d4af37; --bg: #050a07; --card: #0d1410; --border: #1a2e23; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: #e0e0e0; margin: 0; padding: 20px; }
+        .wrapper { max-width: 900px; margin: auto; }
+        
+        /* واجهة الأقسام */
+        .admin-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 25px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 25px; font-weight: 900; }
+        
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        label { margin-bottom: 8px; font-weight: 600; color: #aaa; }
+        
+        input, select { background: #141d18; border: 1px solid var(--border); padding: 12px; color: white; border-radius: 8px; font-family: 'Cairo'; outline: none; }
+        input:focus { border-color: var(--gold); }
+        
+        .upload-btn { background: linear-gradient(135deg, #BF953F, var(--gold)); color: black; border: none; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .upload-btn:hover { transform: scale(1.02); opacity: 0.9; }
+
+        /* تنسيق قائمة النباتات */
+        .items-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+        .item-thumb { background: #141d18; border-radius: 10px; padding: 10px; position: relative; border: 1px solid var(--border); text-align: center; }
+        .item-thumb img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
+        .item-thumb p { font-size: 0.8rem; margin: 8px 0; font-weight: bold; }
+        .del-tag { background: #ff4757; color: white; border: none; padding: 3px 8px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
+
+        .badge { font-size: 0.6rem; padding: 2px 6px; background: var(--gold); color: black; border-radius: 4px; margin-right: 5px; }
     </style>
 </head>
 <body>
-    <h2>إدارة المحتوى السحابي</h2>
-    <div class="box">
-        <input type="text" id="pName" placeholder="اسم النبتة">
-        <select id="pCat">
-            <option value="fruit">الأشجار المثمرة</option>
-            <option value="ornamental">أشجار الزينة</option>
-            <option value="indoor">نباتات الظل</option>
-        </select>
-        <label><input type="checkbox" id="isMoving"> إضافة للسلايدر (نخبة الناصرية)</label>
-        <input type="file" id="pFile" accept="image/*">
-        <button id="uploadBtn" onclick="upload()">حفظ ونشر الآن</button>
-        <hr>
-        <h3>المحتوى الحالي</h3>
-        <div id="itemList"></div>
+
+    <div class="wrapper">
+        <h1 style="text-align:center; font-weight:900;">لوحة تحكم <span style="color:var(--gold)">الناصرية</span></h1>
+
+        <!-- 1. قسم إدارة الفيديو الإعلاني -->
+        <div class="admin-card">
+            <h2>🎥 إدارة الفيديو الإعلاني</h2>
+            <div class="input-group">
+                <label>رفع فيديو جديد (أو تحديث)</label>
+                <input type="file" id="videoFile" accept="video/*">
+            </div>
+            <button class="upload-btn" onclick="uploadVideo()" id="vidBtn">تحديث فيديو الواجهة الرئيسية</button>
+        </div>
+
+        <!-- 2. قسم إضافة النباتات (متحرك/ثابت) -->
+        <div class="admin-card">
+            <h2>🌿 إضافة وتصنيف النباتات</h2>
+            <div class="grid-inputs">
+                <div class="input-group">
+                    <label>اسم الشتلة</label>
+                    <input type="text" id="pName" placeholder="مثلاً: بونساي فاخر">
+                </div>
+                <div class="input-group">
+                    <label>القسم</label>
+                    <select id="pCat">
+                        <option value="fruit">الأشجار المثمرة</option>
+                        <option value="ornamental">أشجار الزينة</option>
+                        <option value="indoor">نباتات الظل</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="input-group" style="background: #1a221e; padding: 15px; border-radius: 8px; border: 1px dashed var(--gold);">
+                <label style="color:white; cursor:pointer;">
+                    <input type="checkbox" id="isMoving" style="width:auto; margin-left:10px;"> 
+                    إرسال إلى <b>"الرف المتحرك"</b> (نخبة الناصرية)
+                </label>
+            </div>
+
+            <div class="input-group">
+                <label>صورة الشتلة</label>
+                <input type="file" id="pFile" accept="image/*">
+            </div>
+
+            <button class="upload-btn" onclick="uploadPlant()" id="plantBtn">حفظ ونشر في الموقع</button>
+        </div>
+
+        <!-- 3. عرض النباتات المنشورة -->
+        <div class="admin-card">
+            <h2>📋 النباتات المنشورة</h2>
+            <div id="itemsDisplay" class="items-list">
+                <!-- النباتات تظهر هنا -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -35,42 +96,69 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1YW9vcGF1YWJubXBtb2RkdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjgyNDUsImV4cCI6MjA5MzIwNDI0NX0._vyBPMk3oaJqMJaBRY4DaKj2ZjSodKPxZ77kFiZUH9o';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function upload() {
-            const file = document.getElementById('pFile').files[0];
-            const name = document.getElementById('pName').value;
-            const btn = document.getElementById('uploadBtn');
+        // --- وظيفة رفع الفيديو ---
+        async function uploadVideo() {
+            const file = document.getElementById('videoFile').files[0];
+            const btn = document.getElementById('vidBtn');
+            if(!file) return alert("اختر ملف فيديو أولاً");
 
-            if(!file || !name) return alert("اكمل البيانات");
-            btn.disabled = true; btn.innerText = "جاري الرفع...";
+            btn.innerText = "جاري رفع الفيديو..."; btn.disabled = true;
+            
+            try {
+                // سنسمي الفيديو دائماً main_hero لسهولة استدعائه
+                const { error } = await _supabase.storage.from('nasriya_assets').upload('main_hero.mp4', file, { upsert: true });
+                if(error) throw error;
+                alert("تم تحديث الفيديو الإعلاني بنجاح!");
+            } catch(e) { alert(e.message); }
+            btn.innerText = "تحديث فيديو الواجهة الرئيسية"; btn.disabled = false;
+        }
+
+        // --- وظيفة رفع النباتات ---
+        async function uploadPlant() {
+            const name = document.getElementById('pName').value;
+            const cat = document.getElementById('pCat').value;
+            const moving = document.getElementById('isMoving').checked;
+            const file = document.getElementById('pFile').files[0];
+            const btn = document.getElementById('plantBtn');
+
+            if(!name || !file) return alert("يرجى تعبئة كافة البيانات");
+
+            btn.innerText = "جاري الحفظ..."; btn.disabled = true;
 
             try {
                 const fileName = `${Date.now()}_${file.name}`;
-                const { data: upData, error: upErr } = await _supabase.storage.from('nasriya_assets').upload(fileName, file);
-                if(upErr) throw upErr;
+                await _supabase.storage.from('nasriya_assets').upload(fileName, file);
+                const { data: urlRes } = _supabase.storage.from('nasriya_assets').getPublicUrl(fileName);
 
-                const { data: urlData } = _supabase.storage.from('nasriya_assets').getPublicUrl(fileName);
-
-                await _supabase.from('plants_data').insert([{
-                    name: name,
-                    category: document.getElementById('pCat').value,
-                    is_moving: document.getElementById('isMoving').checked,
-                    image_url: urlData.publicUrl
+                const { error } = await _supabase.from('plants_data').insert([{
+                    name: name, category: cat, is_moving: moving, image_url: urlRes.publicUrl
                 }]);
 
-                alert("تمت الإضافة!"); location.reload();
-            } catch (e) { alert(e.message); btn.disabled = false; }
+                if(error) throw error;
+                alert("تم نشر الشتلة!"); location.reload();
+            } catch(e) { alert(e.message); btn.disabled = false; }
         }
 
+        // --- عرض النباتات وحذفها ---
         async function loadItems() {
             const { data } = await _supabase.from('plants_data').select('*').order('id', {ascending: false});
-            document.getElementById('itemList').innerHTML = data.map(i => `
-                <div class="list-item">
-                    <span>${i.name}</span>
-                    <button onclick="del(${i.id})" style="width:auto; padding:2px 10px; background:red; color:white;">حذف</button>
+            const container = document.getElementById('itemsDisplay');
+            container.innerHTML = data.map(item => `
+                <div class="item-thumb">
+                    <img src="${item.image_url}">
+                    <p>${item.name} ${item.is_moving ? '<span class="badge">نخبة</span>' : ''}</p>
+                    <button class="del-tag" onclick="deleteItem(${item.id})">حذف</button>
                 </div>
             `).join('');
         }
-        async function del(id) { if(confirm("حذف؟")) { await _supabase.from('plants_data').delete().eq('id', id); loadItems(); } }
+
+        async function deleteItem(id) {
+            if(confirm("هل أنت متأكد من الحذف؟")) {
+                await _supabase.from('plants_data').delete().eq('id', id);
+                loadItems();
+            }
+        }
+
         window.onload = loadItems;
     </script>
 </body>
