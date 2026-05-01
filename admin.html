@@ -2,191 +2,76 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة مشاتل الناصرية | النسخة السحابية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>إدارة مشاتل الناصرية</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-dark: #040d08;
-            --panel-dark: #0a160f;
-            --gold: #d4af37;
-            --text-light: #f5f5f5;
-            --danger: #c0392b;
-            --video-accent: #3498db;
-        }
-
-        body { margin: 0; font-family: 'Cairo', sans-serif; background-color: var(--bg-dark); color: var(--text-light); display: flex; min-height: 100vh; }
-        .sidebar { width: 300px; background: var(--panel-dark); border-left: 1px solid rgba(212, 175, 55, 0.1); padding: 40px 20px; }
-        .main-content { flex-grow: 1; padding: 40px; max-width: 1200px; }
-        .admin-card { background: var(--panel-dark); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px; }
-        h2, h3 { color: var(--gold); margin-top: 0; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        input, select { background: #020704; border: 1px solid rgba(255,255,255,0.1); padding: 12px; color: white; border-radius: 8px; font-family: 'Cairo'; }
-        .btn-add { background: var(--gold); color: var(--bg-dark); border: none; padding: 12px 25px; font-weight: 900; border-radius: 8px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: right; color: var(--gold); padding: 12px; border-bottom: 1px solid var(--gold); }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .img-preview { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
-        .btn-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        body { font-family: 'Cairo', sans-serif; background: #040d08; color: white; padding: 20px; text-align: center; }
+        .box { max-width: 500px; margin: auto; background: #0a160f; padding: 30px; border: 1px solid #d4af37; border-radius: 15px; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; }
+        button { background: #d4af37; color: black; font-weight: bold; cursor: pointer; border: none; }
+        .list-item { display: flex; justify-content: space-between; background: #000; padding: 10px; margin-top: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
-
-<div id="loader" class="loading-overlay">
-    <h2 style="color: var(--gold);">جاري معالجة البيانات...</h2>
-    <p>يرجى الانتظار، يتم الرفع للسحاب الآن</p>
-</div>
-
-<div class="sidebar">
-    <h2>مشاتل الناصرية</h2>
-    <p>لوحة التحكم السحابية ☁️</p>
-    <hr style="opacity: 0.1;">
-    <p style="font-size: 0.8rem;">تأكد من إنشاء Bucket باسم <b>nasriya_assets</b> في Supabase وجعله Public.</p>
-</div>
-
-<div class="main-content">
-    
-    <!-- قسم اللوجو -->
-    <div class="admin-card" style="border-right: 5px solid white;">
-        <h3>إعدادات الهوية (اللوجو)</h3>
-        <div class="form-row">
-            <div class="input-group" style="grid-column: span 2;">
-                <label>رابط اللوجو (أو ارفعه من هنا)</label>
-                <input type="file" id="logoFile" accept="image/*">
-            </div>
-            <button class="btn-add" style="background: white;" onclick="uploadLogo()">تحديث اللوجو</button>
-        </div>
+    <h2>إدارة المحتوى السحابي</h2>
+    <div class="box">
+        <input type="text" id="pName" placeholder="اسم النبتة">
+        <select id="pCat">
+            <option value="fruit">الأشجار المثمرة</option>
+            <option value="ornamental">أشجار الزينة</option>
+            <option value="indoor">نباتات الظل</option>
+        </select>
+        <label><input type="checkbox" id="isMoving"> إضافة للسلايدر (نخبة الناصرية)</label>
+        <input type="file" id="pFile" accept="image/*">
+        <button id="uploadBtn" onclick="upload()">حفظ ونشر الآن</button>
+        <hr>
+        <h3>المحتوى الحالي</h3>
+        <div id="itemList"></div>
     </div>
 
-    <!-- قسم السلايدر -->
-    <div class="admin-card" style="border-right: 5px solid var(--gold);">
-        <h3>1. إضافة للسلايدر (المتحرك)</h3>
-        <div class="form-row">
-            <div class="input-group">
-                <label>اسم النبته</label>
-                <input type="text" id="mName" placeholder="نخبة الناصرية">
-            </div>
-            <div class="input-group">
-                <label>الصورة</label>
-                <input type="file" id="mFile" accept="image/*">
-            </div>
-            <button class="btn-add" onclick="addItem('moving')">إضافة للسلايدر +</button>
-        </div>
-    </div>
+    <script>
+        const SUPABASE_URL = 'https://cuaoopauabnmpmoddvby.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1YW9vcGF1YWJubXBtb2RkdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjgyNDUsImV4cCI6MjA5MzIwNDI0NX0._vyBPMk3oaJqMJaBRY4DaKj2ZjSodKPxZ77kFiZUH9o';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <!-- قسم الأرفف -->
-    <div class="admin-card" style="border-right: 5px solid #2ecc71;">
-        <h3>2. إضافة للأرفف (حسب القسم)</h3>
-        <div class="form-row">
-            <div class="input-group">
-                <label>اسم النبته</label>
-                <input type="text" id="sName" placeholder="بونساي">
-            </div>
-            <div class="input-group">
-                <label>القسم</label>
-                <select id="sCat">
-                    <option value="fruit">أشجار الفاكهة</option>
-                    <option value="ornamental">أشجار الزينة</option>
-                    <option value="indoor">نباتات الظل</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>الصورة</label>
-                <input type="file" id="sFile" accept="image/*">
-            </div>
-            <button class="btn-add" style="background: #2ecc71;" onclick="addItem('static')">إضافة للرف +</button>
-        </div>
-    </div>
+        async function upload() {
+            const file = document.getElementById('pFile').files[0];
+            const name = document.getElementById('pName').value;
+            const btn = document.getElementById('uploadBtn');
 
-    <div class="admin-card">
-        <h3>قائمة المحتوى المرفوع على السحاب</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>المعاينه</th>
-                    <th>الاسم</th>
-                    <th>النوع</th>
-                    <th>الإجراء</th>
-                </tr>
-            </thead>
-            <tbody id="dataTable"></tbody>
-        </table>
-    </div>
-</div>
+            if(!file || !name) return alert("اكمل البيانات");
+            btn.disabled = true; btn.innerText = "جاري الرفع...";
 
-<script>
-    const SUPABASE_URL = 'https://cuaoopauabnmpmoddvby.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1YW9vcGF1YWJubXBtb2RkdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjgyNDUsImV4cCI6MjA5MzIwNDI0NX0._vyBPMk3oaJqMJaBRY4DaKj2ZjSodKPxZ77kFiZUH9o';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            try {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { data: upData, error: upErr } = await _supabase.storage.from('nasriya_assets').upload(fileName, file);
+                if(upErr) throw upErr;
 
-    async function addItem(type) {
-        const name = document.getElementById(type === 'moving' ? 'mName' : 'sName').value;
-        const file = document.getElementById(type === 'moving' ? 'mFile' : 'sFile').files[0];
-        const category = type === 'static' ? document.getElementById('sCat').value : 'moving';
+                const { data: urlData } = _supabase.storage.from('nasriya_assets').getPublicUrl(fileName);
 
-        if (!name || !file) return alert("يرجى اختيار اسم وصورة");
-        showLoader(true);
+                await _supabase.from('plants_data').insert([{
+                    name: name,
+                    category: document.getElementById('pCat').value,
+                    is_moving: document.getElementById('isMoving').checked,
+                    image_url: urlData.publicUrl
+                }]);
 
-        try {
-            const fileName = `${Date.now()}_${file.name}`;
-            const { error: upErr } = await _supabase.storage.from('nasriya_assets').upload(fileName, file);
-            if (upErr) throw upErr;
-
-            const { data: urlRes } = _supabase.storage.from('nasriya_assets').getPublicUrl(fileName);
-            
-            const { error: dbErr } = await _supabase.from('plants_data').insert([{
-                name: name,
-                image_url: urlRes.publicUrl,
-                category: category,
-                is_moving: (type === 'moving')
-            }]);
-
-            if (dbErr) throw dbErr;
-            alert("تمت الإضافة بنجاح!");
-            loadData();
-        } catch (e) {
-            alert("خطأ: " + e.message + "\nتأكد من إنشاء مجلد nasriya_assets وجعله Public");
-        } finally { showLoader(false); }
-    }
-
-    async function uploadLogo() {
-        const file = document.getElementById('logoFile').files[0];
-        if (!file) return alert("اختر ملف اللوجو أولاً");
-        showLoader(true);
-        try {
-            const fileName = `logo_${Date.now()}.png`;
-            await _supabase.storage.from('nasriya_assets').upload(fileName, file);
-            const { data } = _supabase.storage.from('nasriya_assets').getPublicUrl(fileName);
-            
-            await _supabase.from('site_settings').upsert({ key: 'logo_url', value: data.publicUrl });
-            alert("تم تحديث اللوجو بنجاح!");
-        } catch (e) { alert(e.message); } finally { showLoader(false); }
-    }
-
-    async function loadData() {
-        const { data } = await _supabase.from('plants_data').select('*').order('id', { ascending: false });
-        document.getElementById('dataTable').innerHTML = data.map(item => `
-            <tr>
-                <td><img src="${item.image_url}" class="img-preview"></td>
-                <td>${item.name}</td>
-                <td>${item.is_moving ? 'سلايدر' : item.category}</td>
-                <td><button class="btn-delete" onclick="deleteItem(${item.id})">حذف</button></td>
-            </tr>
-        `).join('');
-    }
-
-    async function deleteItem(id) {
-        if (confirm("حذف؟")) {
-            await _supabase.from('plants_data').delete().eq('id', id);
-            loadData();
+                alert("تمت الإضافة!"); location.reload();
+            } catch (e) { alert(e.message); btn.disabled = false; }
         }
-    }
 
-    function showLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-    window.onload = loadData;
-</script>
+        async function loadItems() {
+            const { data } = await _supabase.from('plants_data').select('*').order('id', {ascending: false});
+            document.getElementById('itemList').innerHTML = data.map(i => `
+                <div class="list-item">
+                    <span>${i.name}</span>
+                    <button onclick="del(${i.id})" style="width:auto; padding:2px 10px; background:red; color:white;">حذف</button>
+                </div>
+            `).join('');
+        }
+        async function del(id) { if(confirm("حذف؟")) { await _supabase.from('plants_data').delete().eq('id', id); loadItems(); } }
+        window.onload = loadItems;
+    </script>
 </body>
 </html>
